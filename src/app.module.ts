@@ -4,12 +4,36 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { DatabaseModule } from './database/database.module';
 import { EmployeeModule } from './employee/employee.module';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 // Module: Organize your code into cohesive blocks.
 // src/app.module.ts: The root module that organizes your application.
 @Module({
-  imports: [UsersModule, DatabaseModule, EmployeeModule], // permet d'importer d'autres modules
+  imports: [
+    UsersModule,
+    DatabaseModule,
+    EmployeeModule,
+    ThrottlerModule.forRoot([
+      {
+        name: 'long',
+        ttl: 60000, // 60000ms = 1min: time window
+        limit: 100, // maximum 10 requests per IP within the window
+      },
+      {
+        name: 'short',
+        ttl: 1000,
+        limit: 3,
+      },
+    ]),
+  ], // permet d'importer d'autres modules
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
