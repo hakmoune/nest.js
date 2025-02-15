@@ -7,15 +7,19 @@ import {
   Param,
   Delete,
   Query,
+  Ip,
 } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { Prisma } from '@prisma/client';
 import { Throttle, SkipThrottle } from '@nestjs/throttler';
+import { MyLoggerService } from 'src/my-logger/my-logger.service';
 
 @SkipThrottle() // Will skip the rate limit for all the routes of this model
 @Controller('employee')
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
+
+  private readonly logger = new MyLoggerService(EmployeeController.name);
 
   @Post()
   create(@Body() createEmployeeDto: Prisma.EmployeeCreateInput) {
@@ -24,7 +28,14 @@ export class EmployeeController {
 
   @SkipThrottle({ default: false }) // Rate limiting is applied to this route.
   @Get()
-  findAll(@Query('role') role?: 'INTERN' | 'ENGINEER' | 'ADMIN') {
+  findAll(
+    @Ip() ip: string,
+    @Query('role') role?: 'INTERN' | 'ENGINEER' | 'ADMIN',
+  ) {
+    this.logger.log(
+      `Request for all Employees\t${ip}`,
+      EmployeeController.name,
+    );
     return this.employeeService.findAll(role);
   }
 

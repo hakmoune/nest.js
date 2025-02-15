@@ -6,6 +6,7 @@ import { DatabaseModule } from './database/database.module';
 import { EmployeeModule } from './employee/employee.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { MyLoggerModule } from './my-logger/my-logger.module';
 
 // Module: Organize your code into cohesive blocks.
 // src/app.module.ts: The root module that organizes your application.
@@ -14,6 +15,7 @@ import { APP_GUARD } from '@nestjs/core';
     UsersModule,
     DatabaseModule,
     EmployeeModule,
+    MyLoggerModule,
     ThrottlerModule.forRoot([
       {
         name: 'long',
